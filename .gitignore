@@ -1,0 +1,8 @@
+# 忽略 Lib 文件夹
+Lib/
+
+# 忽略 Scripts 文件夹
+Scripts/
+
+
+checkpoint/
