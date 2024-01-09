@@ -1,5 +1,4 @@
 import os
-import cv2
 import torch
 import numpy as np
 from PIL import Image
@@ -7,10 +6,11 @@ from torch.utils.data import Dataset
 from torchvision import transforms
 import matplotlib.pyplot as plt
 
+DEBUG = False
 
 DATA_PATH = 'D:\File_Lemon\lighting tagger\Data'
-TRAIN_PATH = DATA_PATH + '\\train_s\\'
-TEST_PATH = DATA_PATH + '\\test_s\\'
+TRAIN_PATH = DATA_PATH + '\\train\\'
+TEST_PATH = DATA_PATH + '\\test\\'
 VALID_PATH = DATA_PATH + '\\valid\\'
 
 TEMP_LIST = ["2500", "3500", "4500", "5500", "6500"]
@@ -59,10 +59,9 @@ VIDITtransform = transforms.Compose([
     transforms.Normalize((0.5,), (0.5,)),
 ])
 
-VIDIT_train_dataset = torch.utils.data.DataLoader(VIDITDataset(data_dir=TRAIN_PATH), batch_size=8, shuffle=True)
-VIDIT_test_dataset = torch.utils.data.DataLoader(VIDITDataset(data_dir=TEST_PATH), batch_size=8, shuffle=True)
+VIDIT_train_dataset = torch.utils.data.DataLoader(VIDITDataset(data_dir=TRAIN_PATH), batch_size=64, shuffle=True)
+VIDIT_test_dataset = torch.utils.data.DataLoader(VIDITDataset(data_dir=TEST_PATH), batch_size=64, shuffle=True)
 
-DEBUG = False
 # 测试数据读入
 if DEBUG:
     image, t_label, d_label = next(iter(VIDIT_train_dataset))

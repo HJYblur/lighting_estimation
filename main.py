@@ -7,7 +7,8 @@ from model import CustomViT
 from data_loader import VIDIT_train_dataset, VIDIT_test_dataset
 from evaluate import draw_loss
 
-train_losses, test_losses = [], []
+USE_GPU = False
+
 def train(model, epochs):
     
     dataloader = VIDIT_train_dataset
@@ -23,6 +24,10 @@ def train(model, epochs):
         running_loss = 0
         
         for imgs, t_labels, d_labels in tqdm(dataloader):
+            if USE_GPU:
+                imgs = imgs.to(device)
+                t_labels = t_labels.to(device)
+                d_labels = d_labels.to(device)
             optimizer.zero_grad()
             
             temp_pred, direction_pred = model(imgs)
@@ -44,6 +49,10 @@ def train(model, epochs):
                 model.eval()
                 
                 for imgs, t_labels, d_labels in testloader:
+                    if USE_GPU:
+                        imgs = imgs.to(device)
+                        t_labels = t_labels.to(device)
+                        d_labels = d_labels.to(device)
                     t_ps, d_ps = model(imgs)
                     test_loss += alpha * criterion(t_ps, t_labels) + (1 - alpha) * criterion(d_ps, d_labels)
                     # t_top, t_class = t_ps.topk(1, dim = 1)
@@ -68,9 +77,21 @@ def train(model, epochs):
             
     return
         
+if torch.cuda.is_available():
+    USE_GPU = True
+    print("CUDA is available. Training on GPU.")
+else:
+    print("CUDA is not available. Training on CPU.")
+device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
+
+train_losses, test_losses = [], []
 current_dir = os.getcwd()
 output_dir = os.path.join(current_dir, "checkpoint")
 if not os.path.exists(output_dir):
     os.mkdir(output_dir)
-train(CustomViT(), epochs=10)
+
+model = CustomViT()
+if USE_GPU:
+    model = model.to(device)
+train(model, epochs=10)
 draw_loss(train_losses, test_losses)
