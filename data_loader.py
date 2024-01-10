@@ -6,12 +6,12 @@ from torch.utils.data import Dataset
 from torchvision import transforms
 import matplotlib.pyplot as plt
 
-DEBUG = False
+DEBUG = True
 
 DATA_PATH = '../Data'
-TRAIN_PATH = DATA_PATH + '/train/'
+TRAIN_PATH = DATA_PATH + ('/train_s/' if DEBUG else '/train') 
+VALID_PATH = DATA_PATH + ('/valid_s/' if DEBUG else '/valid')
 TEST_PATH = DATA_PATH + '/test/'
-VALID_PATH = DATA_PATH + '/valid/'
 
 TEMP_LIST = ["2500", "3500", "4500", "5500", "6500"]
 temp_to_idx = {temp: idx for idx, temp in enumerate(TEMP_LIST)}
@@ -59,20 +59,21 @@ VIDITtransform = transforms.Compose([
     transforms.Normalize((0.5,), (0.5,)),
 ])
 
-VIDIT_train_dataset = torch.utils.data.DataLoader(VIDITDataset(data_dir=TRAIN_PATH), batch_size=128, shuffle=True)
-VIDIT_test_dataset = torch.utils.data.DataLoader(VIDITDataset(data_dir=TEST_PATH), batch_size=128, shuffle=True)
+batch_size = 64 if DEBUG else 256
+VIDIT_train_dataset = torch.utils.data.DataLoader(VIDITDataset(data_dir=TRAIN_PATH), batch_size=batch_size, shuffle=True)
+VIDIT_valid_dataset = torch.utils.data.DataLoader(VIDITDataset(data_dir=VALID_PATH), batch_size=batch_size, shuffle=True)
 
 # 测试数据读入
-if DEBUG:
-    image, t_label, d_label = next(iter(VIDIT_train_dataset))
-    imagedemo = image[3].permute(1,2,0) 
-    imagedemo = torch.clamp(imagedemo, 0, 1)
-    print(imagedemo.size())
-    t_demolabel = t_label[3]
-    d_demolabel = d_label[3]
+# if DEBUG:
+#     image, t_label, d_label = next(iter(VIDIT_train_dataset))
+#     imagedemo = image[3].permute(1,2,0) 
+#     imagedemo = torch.clamp(imagedemo, 0, 1)
+#     print(imagedemo.size())
+#     t_demolabel = t_label[3]
+#     d_demolabel = d_label[3]
 
-    plt.imshow(imagedemo)
-    plt.axis('on')  # 显示坐标轴
-    plt.show()
-    print(t_demolabel, d_demolabel)
+#     plt.imshow(imagedemo)
+#     plt.axis('on')  # 显示坐标轴
+#     plt.show()
+#     print(t_demolabel, d_demolabel)
 

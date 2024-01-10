@@ -4,7 +4,7 @@ import torch
 import torch.nn as nn
 from tqdm import tqdm
 from model import CustomViT
-from data_loader import VIDIT_train_dataset, VIDIT_test_dataset
+from data_loader import VIDIT_train_dataset, VIDIT_valid_dataset, DEBUG
 from evaluate import draw_loss
 
 USE_GPU = False
@@ -12,8 +12,8 @@ USE_GPU = False
 def train(model, epochs):
     
     dataloader = VIDIT_train_dataset
-    testloader = VIDIT_test_dataset
-    init_learning_rate = 0.01
+    validloader = VIDIT_valid_dataset
+    init_learning_rate = 0.01 if DEBUG else 0.1
     optimizer = torch.optim.Adam(model.parameters(), lr=init_learning_rate)
     scheduler = torch.optim.lr_scheduler.ReduceLROnPlateau(optimizer, 'min', patience = 5, factor = 0.1)
     criterion = nn.CrossEntropyLoss() 
@@ -42,34 +42,26 @@ def train(model, epochs):
             running_loss += combined_loss.item()
             
         else:
-            test_loss = 0
-            t_accuracy = 0
-            d_accuracy = 0
+            valid_loss = 0
             with torch.no_grad():
                 model.eval()
                 
-                for imgs, t_labels, d_labels in testloader:
+                for imgs, t_labels, d_labels in validloader:
                     if USE_GPU:
                         imgs = imgs.to(device)
                         t_labels = t_labels.to(device)
                         d_labels = d_labels.to(device)
                     t_ps, d_ps = model(imgs)
-                    test_loss += alpha * criterion(t_ps, t_labels) + (1 - alpha) * criterion(d_ps, d_labels)
-                    # t_top, t_class = t_ps.topk(1, dim = 1)
-                    # d_top, d_class = d_ps.topk(1, dim = 1)
-                    # t_equal = t_class == t_labels.view(*t_top.shape)
-                    # d_equal = d_class == d_labels.view(*d_top.shape)
-                    # t_accuracy += torch.mean(t_equal.type(torch.FloatTensor))
-                    # d_accuracy += torch.mean(d_equal.type(torch.FloatTensor))
+                    valid_loss += alpha * criterion(t_ps, t_labels) + (1 - alpha) * criterion(d_ps, d_labels)
                     
             model.train()
             avg_train_loss = running_loss/len(dataloader)
-            avg_test_loss = test_loss/len(testloader)
+            avg_valid_loss = valid_loss/len(validloader)
             train_losses.append(avg_train_loss)
-            test_losses.append(avg_test_loss)
-            print(f"Current train loss: {avg_train_loss}, test loss: {avg_test_loss}")
+            valid_losses.append(avg_valid_loss)
+            print(f"Current train loss: {avg_train_loss}, valid loss: {avg_valid_loss}")
             
-        scheduler.step(avg_test_loss)
+        scheduler.step(avg_valid_loss)
             
         if epoch % 2 == 0:
             model_path = os.path.join(output_dir, f"model_{epoch}.pth")
@@ -84,7 +76,7 @@ else:
     print("CUDA is not available. Training on CPU.")
 device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 
-train_losses, test_losses = [], []
+train_losses, valid_losses = [], []
 current_dir = os.getcwd()
 output_dir = os.path.join(current_dir, "checkpoint")
 if not os.path.exists(output_dir):
@@ -94,4 +86,4 @@ model = CustomViT()
 if USE_GPU:
     model = model.to(device)
 train(model, epochs=50)
-draw_loss(train_losses, test_losses)
+draw_loss(train_losses, valid_losses)
