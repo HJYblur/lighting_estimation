@@ -3,7 +3,7 @@ import os
 import torch
 import torch.nn as nn
 from tqdm import tqdm
-from model import CustomViT
+from model import VIDITmodel
 from data_loader import VIDIT_train_dataset, VIDIT_valid_dataset, DEBUG
 from evaluate import draw_loss
 
@@ -67,7 +67,6 @@ def train(model, epochs):
             model_path = os.path.join(output_dir, f"model_{epoch}.pth")
             torch.save(model, model_path)
             
-    return
         
 if torch.cuda.is_available():
     USE_GPU = True
@@ -82,8 +81,9 @@ output_dir = os.path.join(current_dir, "checkpoint")
 if not os.path.exists(output_dir):
     os.mkdir(output_dir)
 
-model = CustomViT()
+model = VIDITmodel
 if USE_GPU:
     model = model.to(device)
-train(model, epochs=50)
-draw_loss(train_losses, valid_losses)
+train_epoch = 13 if DEBUG else 50
+train(model, train_epoch)
+draw_loss(train_epoch, train_losses, valid_losses)

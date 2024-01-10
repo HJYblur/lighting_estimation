@@ -2,6 +2,21 @@ import torch
 import torch.nn as nn
 from torchvision.models import vit_b_16, ViT_B_16_Weights
 
+def unfreeze_model_layers(model, unfreeze_layers, print_name = False):
+    if print_name:
+        print("Initial state:")
+        for name, param in model.named_parameters():
+            print(name, param.requires_grad)
+    if unfreeze_layers != 0:
+        # print(list(model.parameters()))
+        for layer in list(model.parameters())[-unfreeze_layers:]:
+                layer.requires_grad = True
+    if print_name:
+        print("\nAfter unfreezing:")
+        for name, param in model.named_parameters():
+            print(name, param.requires_grad)
+
+
 class ImageEncoding():
     def __init__(self, in_channels=3, enc_channels=32, out_channels=64):
         super(ImageEncoding, self).__init__()
@@ -27,7 +42,7 @@ class CustomViT(nn.Module):
         super(CustomViT, self).__init__()
         weights = ViT_B_16_Weights.DEFAULT
         self.base_model = vit_b_16(weights=weights)  # 加载预训练模型
-        for param in self.base_model.heads.parameters():
+        for param in self.base_model.parameters():
             param.requires_grad = False
         
         # print(self.base_model)
@@ -48,4 +63,5 @@ class CustomViT(nn.Module):
         # max_direction_pred, _ = torch.max(direction_pred, 1)
         return temp_pred, direction_pred  # 返回两个分类头的预测结果
     
-model = CustomViT()
+VIDITmodel = CustomViT()
+unfreeze_model_layers(VIDITmodel, 42)
