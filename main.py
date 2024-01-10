@@ -93,5 +93,5 @@ if not os.path.exists(output_dir):
 model = CustomViT()
 if USE_GPU:
     model = model.to(device)
-train(model, epochs=10)
+train(model, epochs=50)
 draw_loss(train_losses, test_losses)

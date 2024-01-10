@@ -6,7 +6,7 @@ from data_loader import VIDITData, VIDITtransform, VALID_PATH, TEMP_LIST, DIR_LI
 
 def load_model(num):
     # 加载模型
-    model_path = os.path.join(os.getcwd(), "output", f"model_{num}.pth")
+    model_path = os.path.join(os.getcwd(), "checkpoint", f"model_{num}.pth")
     VIT_model = torch.load(model_path)
     VIT_model.eval()
     return VIT_model
@@ -61,5 +61,5 @@ def batch_test(epoch):
 
 img_list = []
 name_list = []
-VIDITmodel = load_model(8)
-batch_test(20)
+VIDITmodel = load_model(12)
+batch_test(200)

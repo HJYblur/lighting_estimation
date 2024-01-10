@@ -8,10 +8,10 @@ import matplotlib.pyplot as plt
 
 DEBUG = False
 
-DATA_PATH = 'D:\File_Lemon\lighting tagger\Data'
-TRAIN_PATH = DATA_PATH + '\\train\\'
-TEST_PATH = DATA_PATH + '\\test\\'
-VALID_PATH = DATA_PATH + '\\valid\\'
+DATA_PATH = '../Data'
+TRAIN_PATH = DATA_PATH + '/train/'
+TEST_PATH = DATA_PATH + '/test/'
+VALID_PATH = DATA_PATH + '/valid/'
 
 TEMP_LIST = ["2500", "3500", "4500", "5500", "6500"]
 temp_to_idx = {temp: idx for idx, temp in enumerate(TEMP_LIST)}
@@ -59,8 +59,8 @@ VIDITtransform = transforms.Compose([
     transforms.Normalize((0.5,), (0.5,)),
 ])
 
-VIDIT_train_dataset = torch.utils.data.DataLoader(VIDITDataset(data_dir=TRAIN_PATH), batch_size=64, shuffle=True)
-VIDIT_test_dataset = torch.utils.data.DataLoader(VIDITDataset(data_dir=TEST_PATH), batch_size=64, shuffle=True)
+VIDIT_train_dataset = torch.utils.data.DataLoader(VIDITDataset(data_dir=TRAIN_PATH), batch_size=128, shuffle=True)
+VIDIT_test_dataset = torch.utils.data.DataLoader(VIDITDataset(data_dir=TEST_PATH), batch_size=128, shuffle=True)
 
 # 测试数据读入
 if DEBUG:
