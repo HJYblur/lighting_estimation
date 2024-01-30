@@ -67,5 +67,5 @@ def batch_test(epoch):
 
 img_list = []
 name_list = []
-VIDITmodel = load_model(12)
+VIDITmodel = load_model(5)
 batch_test(200)

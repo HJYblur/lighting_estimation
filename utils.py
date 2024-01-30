@@ -15,14 +15,14 @@ direction_vectors = {
 } # 0维左右，1维上下
 
 
-def draw_loss(epoch, train_losses, valid_losses):
+def draw_loss(epoch, train_losses, valid_losses, title):
     plt.figure()
     epochs = range(1, epoch + 1)
     plt.plot(epochs, train_losses, label="Training loss")
     plt.plot(epochs, valid_losses, label="Validation loss")
     plt.xlabel("Epoch")
     plt.ylabel("Loss")
-    plt.title("Training and Validation Loss Over Epochs")
+    plt.title(title)
     plt.legend()
 
     output_dir = "./output"
