@@ -1,18 +1,19 @@
+from scipy.interpolate import interp1d
 import matplotlib.pyplot as plt
 import os
 from datetime import datetime
 
 
 direction_vectors = {
-    "N":  (0, 1),
+    "N": (0, 1),
     "NE": (1, 1),
-    "E":  (1, 0),
+    "E": (1, 0),
     "SE": (1, -1),
-    "S":  (0, -1),
+    "S": (0, -1),
     "SW": (-1, -1),
-    "W":  (-1, 0),
-    "NW": (-1, 1)
-} # 0维左右，1维上下
+    "W": (-1, 0),
+    "NW": (-1, 1),
+}  # 0维左右，1维上下
 
 
 def draw_loss(epoch, train_losses, valid_losses, title):
@@ -36,4 +37,3 @@ def draw_loss(epoch, train_losses, valid_losses, title):
     plt.close()
 
     print(f"Save pic: loss_{current_time}.png")
-

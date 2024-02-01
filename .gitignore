@@ -4,9 +4,7 @@ Lib/
 # 忽略 Scripts 文件夹
 Scripts/
 
-
 checkpoint/
-
 
 lighting/
 
