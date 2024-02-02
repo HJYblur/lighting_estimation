@@ -1,16 +1,26 @@
-import numpy as np
+import os
+import json
 import torch
 import tkinter as tk
 from tkinter import filedialog
 from PIL import Image
 from test import load_model, load_answer
 from data_loader import data_transform, TEMP_LIST, DIR_LIST
+from calculation import analyze_brightness
 
 
 def preprocess_img(file_path):
     image = Image.open(file_path).convert("RGB")
     img = data_transform(image).unsqueeze(0)
     return img.to(device)
+
+
+def load_model(mode):
+    # 加载模型
+    model_path = default_temp_model_path if mode == 't' else default_dir_model_path
+    model = torch.load(model_path)
+    model.eval()
+    return model.to(device)
 
 def load_answer(img, model, mode):
     with torch.no_grad():
@@ -34,17 +44,31 @@ if __name__ == "__main__":
     print(f"当前选择的文件路径：{file_path}")
     
     target_image = preprocess_img(file_path)
+    
+    default_temp_model_path = os.path.join(os.getcwd(), "pre_trained", "temp20.pth")
+    default_dir_model_path = os.path.join(os.getcwd(), "pre_trained", "direc6.pth")
 
     # 计算当前光照方向
-    dir_model = load_model(8, "d")
+    dir_model = load_model("d")
     direction = load_answer(target_image, dir_model, 'd')
     
     # 计算光温
-    temp_model = load_model(8, 't')
+    temp_model = load_model('t')
     temperature = load_answer(target_image, temp_model, 't')
 
     # 计算光照强度和天光
     intensity, sky_light = analyze_brightness(file_path)
     
-    # 存入CSV文件等待与UE进行交互
     print(f"direction: {direction},\ntemperature: {temperature},\nintensity: {intensity},\nsky_light:{sky_light}")
+    
+    # 存入CSV文件等待与UE进行交互
+    data = {
+        "name": file_path.split("/")[-1],
+        "direction": direction,
+        "temperature": temperature,
+        "intensity": intensity,
+        "sky_light": sky_light
+    }
+    with open("./output/answer.json", 'w') as file:
+        json.dump(data, file, indent=5)
+    

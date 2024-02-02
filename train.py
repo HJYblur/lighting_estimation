@@ -14,9 +14,9 @@ def to_cpu_list(tensor_list):
 
 
 def train(model, epochs, mode, train_losses, valid_losses):
-    init_learning_rate = 1e-5
+    init_learning_rate = 1e-3
     optimizer = torch.optim.Adam(
-        model.parameters(), lr=init_learning_rate, weight_decay=1e-5
+        model.parameters(), lr=init_learning_rate, weight_decay=1e-4
     )
     scheduler = torch.optim.lr_scheduler.ReduceLROnPlateau(
         optimizer, "min", patience=5, factor=0.5
@@ -101,7 +101,7 @@ if __name__ == "__main__":
         [],
         [],
     )
-    train(dir_model, train_epoch, "t", train_dir_losses, valid_dir_losses)
+    train(dir_model, train_epoch, "d", train_dir_losses, valid_dir_losses)
 
     # if (
     #     len(train_losses) > 0
@@ -115,7 +115,7 @@ if __name__ == "__main__":
         train_epoch,
         train_dir_losses,
         valid_dir_losses,
-        "Temperature's Training and Validation Loss Over Epochs",
+        "Direction's Training and Validation Loss Over Epochs", # "Direction's Training and Validation Loss Over Epochs",
     )
 
     # train_temp_losses = to_cpu_list(train_temp_losses)

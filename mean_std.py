@@ -4,7 +4,7 @@ import numpy as np
 from tqdm import tqdm
 from data_loader import TRAIN_PATH
 
-## mean: [0.3422852  0.33595875 0.24629457] std: [0.27514981 0.25132029 0.23664711]
+## mean: [0.22336641 0.18613806 0.14291127] std: [0.29758727 0.25232168 0.20862703]
 
 count = 0
 total_mean = np.zeros(3)

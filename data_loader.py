@@ -1,4 +1,5 @@
 import os
+import random
 import cv2
 import torch
 import numpy as np
@@ -37,6 +38,16 @@ def load_dirc_label(item):
     return torch.tensor(dir_to_index[dirc], dtype=torch.long)
 
 
+def get_random_kernel():
+    kernel_size = random.choice([3, 5, 7, 9])  # 核大小应该是奇数
+    return [kernel_size, kernel_size]
+
+
+def get_random_sigma():
+    sigma = random.uniform(0.1, 2.0)  # 标准差范围可以根据需要调整
+    return [sigma, sigma]
+
+
 class CustomData:
     def __init__(self, data_dir):
         self.name = data_dir
@@ -49,10 +60,13 @@ class CustomDataset(Dataset):
     def __init__(self, data_dir):
         self.data_dir = data_dir
         self.file_list = os.listdir(data_dir)  # 获取文件列表
+
         self.augmentation_transform = transforms.Compose(
             [
-                # transforms.RandomRotation(10),
-                transforms.RandomCrop((10, 10))
+                transforms.RandomRotation(5),
+                transforms.GaussianBlur(
+                    kernel_size=get_random_kernel(), sigma=get_random_sigma()
+                ),
             ]
         )
 
@@ -63,10 +77,11 @@ class CustomDataset(Dataset):
         )
 
         item = CustomData(filename)
+        # print(filename, item.temperature, temp_to_idx[item.temperature], item.direction, dir_to_index[item.direction])
         temp_label = load_temp_label(item)
         dirc_label = load_dirc_label(item)
         datalist = [
-            (self.augmentation_transform(img), temp_label, dirc_label) for _ in range(5)
+            (self.augmentation_transform(img), temp_label, dirc_label) for _ in range(aug_size)
         ]
         # datalist = [
         #     (add_noise(image), t_label, d_label) for image, t_label, d_label in datalist
@@ -82,13 +97,15 @@ data_transform = transforms.Compose(
     [
         transforms.Resize((224, 224)),  # Resize the image to 224x224
         transforms.ToTensor(),
-        # transforms.Normalize((0.5,), (0.5,)),
+        transforms.Normalize(
+            (0.22336641, 0.18613806, 0.14291127), (0.29758727, 0.25232168, 0.20862703)
+        ),
     ]
 )
 
 
 batch_size = 32
-aug_size = 8
+aug_size = 4
 VIDIT_train_loader = torch.utils.data.DataLoader(
     CustomDataset(data_dir=TRAIN_PATH), batch_size=batch_size, shuffle=True
 )
