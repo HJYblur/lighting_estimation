@@ -10,10 +10,11 @@ from utils import draw_loss
 USE_GPU = True
 
 
+# 单选框，选择当前训练的是学习光温还是光照方向的模型
 def show_radio_selection():
     root = tk.Tk()
     var = tk.IntVar()
-     # 创建单选框
+    # 创建单选框
     t_radio = tk.Radiobutton(root, text="t", variable=var, value=1)
     d_radio = tk.Radiobutton(root, text="d", variable=var, value=2)
 
@@ -29,6 +30,7 @@ def show_radio_selection():
     root.mainloop()
 
     return var.get()
+
 
 def to_cpu_list(tensor_list):
     return [tensor.item() for tensor in tensor_list]
@@ -90,6 +92,7 @@ def train(model, epochs, mode, train_losses, valid_losses):
 
         scheduler.step(avg_valid_loss)
 
+        # 每隔两轮存储一次训练好的模型
         if epoch % 2 == 0:
             model_path = os.path.join(output_dir, mode, f"model_{epoch}.pth")
             torch.save(model, model_path)
@@ -110,6 +113,7 @@ if __name__ == "__main__":
     if not os.path.exists(output_dir):
         os.mkdir(output_dir)
 
+    # 分别建立一个分类头是8和5的模型
     dir_model = ResNet18(image_channels, 8)
     temp_model = ResNet18(image_channels, 5)
     if USE_GPU:
@@ -137,7 +141,7 @@ if __name__ == "__main__":
         train_epoch,
         train_dir_losses,
         valid_dir_losses,
-        "Direction's Training and Validation Loss Over Epochs", # "Direction's Training and Validation Loss Over Epochs",
+        "Direction's Training and Validation Loss Over Epochs",  # "Direction's Training and Validation Loss Over Epochs",
     )
 
     # train_temp_losses = to_cpu_list(train_temp_losses)

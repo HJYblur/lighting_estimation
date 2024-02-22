@@ -7,15 +7,19 @@ from PIL import Image
 from torch.utils.data import Dataset
 from torchvision import transforms
 
+# debug开关，设置为True时将用小样本数据集进行训练，确保训练过程正确
 DEBUG = False
 
+# 数据集地址
 DATA_PATH = "../Data"
 TRAIN_PATH = DATA_PATH + ("/train_s/" if DEBUG else "/train")
 VALID_PATH = DATA_PATH + ("/valid_s/" if DEBUG else "/valid")
 TEST_PATH = DATA_PATH + "/test/"
 
+# 光温可能的值
 TEMP_LIST = ["2500", "3500", "4500", "5500", "6500"]
 temp_to_idx = {temp: idx for idx, temp in enumerate(TEMP_LIST)}
+# 光照方向可能的值
 DIR_LIST = ["N", "NE", "E", "SE", "S", "SW", "W", "NW"]
 dir_to_index = {dir: idx for idx, dir in enumerate(DIR_LIST)}
 
@@ -48,6 +52,7 @@ def get_random_sigma():
     return [sigma, sigma]
 
 
+# 单张图片的数据结构，包括图片名、id、光温和光照方向
 class CustomData:
     def __init__(self, data_dir):
         self.name = data_dir
@@ -56,11 +61,13 @@ class CustomData:
         self.direction = self.name.split("_")[2].split(".")[0]
 
 
+# 数据集结构
 class CustomDataset(Dataset):
     def __init__(self, data_dir):
         self.data_dir = data_dir
         self.file_list = os.listdir(data_dir)  # 获取文件列表
 
+        # 此处进行数据增强
         self.augmentation_transform = transforms.Compose(
             [
                 # transforms.RandomRotation(5),
@@ -83,7 +90,8 @@ class CustomDataset(Dataset):
         temp_label = load_temp_label(item)
         dirc_label = load_dirc_label(item)
         datalist = [
-            (self.augmentation_transform(img), temp_label, dirc_label) for _ in range(aug_size)
+            (self.augmentation_transform(img), temp_label, dirc_label)
+            for _ in range(aug_size)
         ]
 
         return datalist
@@ -92,6 +100,7 @@ class CustomDataset(Dataset):
         return len(self.file_list)
 
 
+# 将训练图片变换到224*224，同时整理成张量并且进行正则化。 后续对新图片进行测试也需要进行同样的变换。
 data_transform = transforms.Compose(
     [
         transforms.Resize((224, 224)),  # Resize the image to 224x224

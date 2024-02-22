@@ -44,6 +44,7 @@ if __name__ == "__main__":
         print("CUDA is not available. Working on CPU.")
     device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 
+    # 选择当前要测试的图片
     root = tk.Tk()
     root.withdraw()
 
@@ -58,6 +59,7 @@ if __name__ == "__main__":
     # 计算当前光照方向
     dir_model = load_model("d")
     direction = load_answer(target_image, dir_model, 'd')
+    # 将NE,E,N等方向转化为UE中可以直接拿去计算的向量
     direction_vec = direction_vectors[direction]
     
     # 计算光温
