@@ -2,12 +2,33 @@ import os
 import torch
 import torch.nn as nn
 from tqdm import tqdm
+import tkinter as tk
 from resnet18 import ResNet18
 from data_loader import VIDIT_train_loader, VIDIT_valid_loader, DEBUG, aug_size
 from utils import draw_loss
 
 USE_GPU = True
 
+
+def show_radio_selection():
+    root = tk.Tk()
+    var = tk.IntVar()
+     # 创建单选框
+    t_radio = tk.Radiobutton(root, text="t", variable=var, value=1)
+    d_radio = tk.Radiobutton(root, text="d", variable=var, value=2)
+
+    # 创建按钮用于获取选择
+    submit_button = tk.Button(root, text="确定", command=root.destroy)  # 关闭窗口
+
+    # 布局
+    t_radio.pack()
+    d_radio.pack()
+    submit_button.pack()
+
+    # 启动主循环
+    root.mainloop()
+
+    return var.get()
 
 def to_cpu_list(tensor_list):
     return [tensor.item() for tensor in tensor_list]
@@ -101,7 +122,8 @@ if __name__ == "__main__":
         [],
         [],
     )
-    train(dir_model, train_epoch, "d", train_dir_losses, valid_dir_losses)
+    choice = show_radio_selection()
+    train(dir_model, train_epoch, choice, train_dir_losses, valid_dir_losses)
 
     # if (
     #     len(train_losses) > 0

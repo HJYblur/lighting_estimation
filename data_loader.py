@@ -63,7 +63,9 @@ class CustomDataset(Dataset):
 
         self.augmentation_transform = transforms.Compose(
             [
-                transforms.RandomRotation(5),
+                # transforms.RandomRotation(5),
+                # transforms.RandomEqualize(),
+                transforms.RandomInvert(),
                 transforms.GaussianBlur(
                     kernel_size=get_random_kernel(), sigma=get_random_sigma()
                 ),
@@ -83,9 +85,6 @@ class CustomDataset(Dataset):
         datalist = [
             (self.augmentation_transform(img), temp_label, dirc_label) for _ in range(aug_size)
         ]
-        # datalist = [
-        #     (add_noise(image), t_label, d_label) for image, t_label, d_label in datalist
-        # ]
 
         return datalist
 
@@ -105,7 +104,7 @@ data_transform = transforms.Compose(
 
 
 batch_size = 32
-aug_size = 4
+aug_size = 1
 VIDIT_train_loader = torch.utils.data.DataLoader(
     CustomDataset(data_dir=TRAIN_PATH), batch_size=batch_size, shuffle=True
 )

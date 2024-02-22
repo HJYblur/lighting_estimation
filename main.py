@@ -7,7 +7,11 @@ from PIL import Image
 from test import load_model, load_answer
 from data_loader import data_transform, TEMP_LIST, DIR_LIST
 from calculation import analyze_brightness
+from utils import direction_vectors
 
+
+def is_dir_empty(dir_path):
+    return not bool(os.listdir(dir_path))
 
 def preprocess_img(file_path):
     image = Image.open(file_path).convert("RGB")
@@ -30,11 +34,14 @@ def load_answer(img, model, mode):
         return TEMP_LIST[val] if mode =='t' else DIR_LIST[val]
 
 if __name__ == "__main__":
+    if is_dir_empty("./pre_trained"):
+        print("当前无预训练模型，请先进行训练。")
+    
     if torch.cuda.is_available():
         USE_GPU = True
-        print("CUDA is available. Training on GPU.")
+        print("CUDA is available. Working on GPU.")
     else:
-        print("CUDA is not available. Training on CPU.")
+        print("CUDA is not available. Working on CPU.")
     device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 
     root = tk.Tk()
@@ -51,6 +58,7 @@ if __name__ == "__main__":
     # 计算当前光照方向
     dir_model = load_model("d")
     direction = load_answer(target_image, dir_model, 'd')
+    direction_vec = direction_vectors[direction]
     
     # 计算光温
     temp_model = load_model('t')
@@ -64,11 +72,12 @@ if __name__ == "__main__":
     # 存入CSV文件等待与UE进行交互
     data = {
         "name": file_path.split("/")[-1],
-        "direction": direction,
+        "dimention0": direction_vec[0],
+        "dimention1": direction_vec[1],
         "temperature": temperature,
         "intensity": intensity,
         "sky_light": sky_light
     }
     with open("./output/answer.json", 'w') as file:
-        json.dump(data, file, indent=5)
-    
+        json.dump(data, file, indent=6)
+        print("文件已存储到D:\File_Lemon\lighting tagger\lighting_estimation\output\\answer.json")
